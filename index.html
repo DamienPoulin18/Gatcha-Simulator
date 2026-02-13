@@ -321,38 +321,55 @@ const fruits = [
     }
  
     function startTradeTimer() {
-    // 1. Empêcher le spam en désactivant le bouton immédiatement
     const btn = document.getElementById('accept-btn');
-    if (btn.disabled) return; // Sécurité supplémentaire
-    btn.disabled = true; 
+    if (btn.disabled && !tradeInterval) return; 
+
+    // 1. Verrouillage visuel et technique
+    btn.disabled = true;
     btn.style.opacity = "0.5";
     btn.style.cursor = "not-allowed";
- 
+    
+    // EMPÊCHER LES CLICS SUR LES SLOTS PENDANT LE TRADE
+    document.getElementById('p-slots').style.pointerEvents = 'none';
+    document.getElementById('npc-slots').style.pointerEvents = 'none';
+    document.getElementById('btn-gen-code').style.pointerEvents = 'none';
+    
     document.getElementById('cooldown-timer').style.display = 'block';
     let c = 10;
- 
-    // On s'assure qu'aucun autre intervalle ne tourne déjà
+
     if (tradeInterval) clearInterval(tradeInterval);
- 
+
     tradeInterval = setInterval(() => {
         c--;
         document.getElementById('cooldown-timer').innerText = c;
- 
+
         if(c <= 0) {
             clearInterval(tradeInterval);
-            tradeInterval = null; // Reset de l'intervalle
- 
-            // Transfert des fruits
-            pTradeIndices.sort((a,b)=>b-a).forEach(i=>inventory.splice(i,1));
-            npcTradeItems.forEach(f=>inventory.push({...f}));
- 
+            tradeInterval = null;
+
+            // 2. DOUBLE VÉRIFICATION : On vérifie si les indices sont toujours valides
+            // On trie pour ne pas décaler les index lors du splice
+            let sortedIndices = [...pTradeIndices].sort((a,b) => b - a);
+            
+            // Retrait des fruits du joueur
+            sortedIndices.forEach(i => {
+                if(inventory[i]) inventory.splice(i, 1);
+            });
+
+            // Ajout des fruits du NPC
+            npcTradeItems.forEach(f => inventory.push({...f}));
+
+            // 3. RÉINITIALISATION
+            document.getElementById('p-slots').style.pointerEvents = 'auto';
+            document.getElementById('npc-slots').style.pointerEvents = 'auto';
+            document.getElementById('btn-gen-code').style.pointerEvents = 'auto';
+            
             closeTrade();
             updateUI();
-            alert("Trade NPC réussi !");
+            alert("Trade réussi ! Les objets ont été transférés.");
         }
     }, 1000);
 }
- 
  
     load(); updateUI();
 function sellAllNonFav() {
