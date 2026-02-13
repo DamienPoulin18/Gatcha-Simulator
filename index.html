@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blox Fruits Gacha - Ultimate Edition</title>
+    <style>
+        :root {
+            --bg-color: #0f0f12; --panel-color: #1e1e20;
+            --common: #b1b1b1; --uncommon: #4a90e2; --rare: #9013fe;
+            --legendary: #ff007a; --mythical: #ff0000; --accent: #ffd700;
+            --amber: #ffbf00; --kitsune: #ff00ff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: white; display: flex; flex-direction: column; align-items: center; margin: 0; overflow-x: hidden; }
+ 
+        /* Gacha Rail */
+        .gacha-header-container { width: 100%; background: #000; padding: 20px 0; border-bottom: 3px solid #333; display: flex; flex-direction: column; align-items: center; }
+        .gacha-viewport { width: 95%; max-width: 1200px; height: 160px; background: #111; border: 4px solid var(--accent); border-radius: 15px; position: relative; overflow: hidden; display: flex; align-items: center; }
+        .gacha-rail { display: flex; position: absolute; left: 0; transition: transform 4.5s cubic-bezier(0.1, 0, 0.1, 1); will-change: transform; }
+        .gacha-item { min-width: 160px; height: 140px; margin: 0 10px; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; border-bottom: 4px solid #444; }
+        .center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; background: var(--accent); z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px gold; }
+ 
+        /* Profil */
+        .player-profile { background: #222; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #444; width: 90%; max-width: 500px; }
+        .level-bar { background: #444; height: 10px; border-radius: 5px; margin-top: 8px; overflow: hidden; }
+        .level-fill { background: #2ecc71; height: 100%; width: 0%; transition: 0.4s; }
+        .player-title { font-weight: bold; font-size: 0.85em; padding: 3px 8px; border-radius: 4px; margin-left: 10px; border: 1px solid; }
+        .title-newbie { color: #aaa; border-color: #aaa; }
+        .title-expert { color: gold; border-color: gold; box-shadow: 0 0 5px gold; }
+        .title-kitsune-king { color: var(--kitsune); border: 2px solid var(--kitsune); box-shadow: 0 0 15px var(--kitsune); animation: k-glow 1.5s infinite alternate; }
+        @keyframes k-glow { from { filter: brightness(1); } to { filter: brightness(1.5) hue-rotate(45deg); } }
+ 
+        /* Inventaire & Cartes */
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; height: 400px; overflow-y: auto; background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .fruit-card { padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; background: #252527; border: 2px solid transparent; transition: 0.2s; position: relative; }
+        .fruit-card.fav { border-color: gold; box-shadow: inset 0 0 10px gold; }
+        .badge-skin { position: absolute; top: 5px; right: 5px; background: #00f2ff; color: #000; font-size: 8px; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
+        .rarity-Amber { color: var(--amber); border-color: var(--amber); }
+        .rarity-Mythical { color: var(--mythical); border-color: var(--mythical); }
+ 
+        /* Trade Window */
+        .trade-window { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; border: 4px solid #444; width: 90%; max-width: 850px; padding: 25px; z-index: 100; border-radius: 15px; box-shadow: 0 0 100px #000; }
+        #fruit-selector-modal { display: none; position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; background: #2c2c2e; border: 3px solid var(--accent); z-index: 200; border-radius: 15px; padding: 20px; }
+        .shake { animation: shake 0.2s infinite; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    </style>
+</head>
+<body>
+ 
+<div class="gacha-header-container">
+    <div class="gacha-viewport">
+        <div class="center-line"></div>
+        <div id="gacha-rail" class="gacha-rail" style="transition: transform 4.5s cubic-bezier(0.1, 0, 0.1, 1); transform: translateX(-12086px);"><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Blizzard</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Rubber</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Leopard</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Ice</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Portal</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Leopard</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Phoenix</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Mammoth</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dough</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Rocket</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Shadow</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Gravity</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Barrier</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Blade</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Kitsune</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Pain</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Falcon</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Magma</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Ice</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dough</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Gravity</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Control</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Gravity</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Spider</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Kitsune</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Mammoth</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Pain</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Dark</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Diamond</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Gas</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Bomb</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Portal</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Blade</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Leopard</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Pain</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Venom</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Ice</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Control</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Shadow</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Buddha</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Bomb</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Blizzard</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Buddha</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Phoenix</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Spider</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Kitsune</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Sand</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Venom</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Quake</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Blizzard</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Barrier</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Mammoth</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Mammoth</div></div></div>
+    </div>
+    <div style="display: flex; gap: 30px; align-items: center; margin-top: 15px;">
+        <h2 style="color: #2ecc71; margin:0;">Beli: <span id="money">2 506 306 750</span>$</h2>
+        <button class="btn-roll" id="roll-btn" onclick="startRoll()" style="padding:12px 40px; background:var(--accent); font-weight:bold; border:none; border-radius:5px; cursor:pointer;">SPIN GACHA</button>
+    </div>
+</div>
+ 
+<div class="player-profile">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <input type="text" id="player-name" style="background:none; border:none; color:white; font-weight:bold; border-bottom:1px solid #555; width:120px;" value="Joueur" onchange="save()">
+            <span id="display-title" class="player-title title-kitsune-king">King of Kitsune</span>
+        </div>
+        <b>Niveau <span id="player-lvl">4</span></b>
+    </div>
+    <div class="level-bar"><div id="lvl-fill" class="level-fill" style="width: 71.25%;"></div></div>
+    <small style="color:#888;">XP: <span id="player-xp">285</span> / <span id="xp-next">400</span></small>
+</div>
+ 
+<div style="margin-bottom: 20px;">
+    <input type="text" id="dlc-input" style="padding:8px; background:#111; color:orange; border:1px solid #444; border-radius:4px;" placeholder="CODE SECRET">
+    <button onclick="activateDLC()" style="padding:8px 15px; background:orange; border:none; cursor:pointer; font-weight:bold;">ACTIVER</button>
+</div>
+ 
+<div style="width: 95%; max-width: 1100px; background: var(--panel-color); padding: 20px; border-radius: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div style="display:flex; gap:10px;">
+ 
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+    <h2 style="margin:0;">Inventaire</h2>
+    <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <button onclick="sellAllNonFav()" style="background:#f39c12; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">💰 VENDRE TOUT (Sauf ⭐)</button>
+        <button onclick="openTrade()" style="background:#007bff; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">🤝 TRADE NPC</button>
+        <button onclick="importCode()" style="background:#2ecc71; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">📥 IMPORT CODE</button>
+    </div>
+</div>
+ 
+        </div>
+    </div>
+    <div id="inventory" class="inventory-grid">
+            <div class="fruit-card rarity-Mythical fav" onclick="selectItem(0)">
+ 
+                <img src="https://api.dicebear.com"><br><b>Gas</b>
+            </div></div>
+    <div id="actions" style="margin-top: 15px; background: rgb(61, 61, 64); padding: 15px; border-radius: 10px; display: none; justify-content: space-between; align-items: center;">
+        <span id="sel-name" style="font-weight:bold; font-size:18px;">Gas ⭐</span>
+        <div>
+            <button onclick="toggleFav()" style="background:none; border:none; font-size:24px; cursor:pointer;">⭐</button>
+            <button onclick="sellFruit()" style="background:#dc3545; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">Vendre (50%)</button>
+        </div>
+    </div>
+</div>
+ 
+<div id="trade-ui" class="trade-window" style="display: none;">
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 id="trade-title" style="margin:0;">TRADE NPC</h2>
+        <h2 id="cooldown-timer" style="color: rgb(255, 71, 87); display: block; background: rgb(0, 0, 0); padding: 8px; border-radius: 8px;">0</h2>
+    </div>
+    <div style="display: flex; gap: 15px;">
+        <div style="flex:1;">
+            <div id="p-slots" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#000; height:200px; padding:10px; border-radius:8px;"><div class="fruit-card rarity-Mythical" style="font-size:10px;" onclick="pTradeIndices.splice(0,1);refreshTrade()"><img src="https://api.dicebear.com" width="40"><br>Mammoth</div><div style="border:2px dashed #444; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openSelector()">+</div><div style="border:2px dashed #444; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openSelector()">+</div><div style="border:2px dashed #444; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openSelector()">+</div></div>
+            <div style="text-align:center; color:gold; font-weight:bold; margin-top:5px;">Valeur: <span id="p-val">4 000 000</span></div>
+            <button id="btn-gen-code" onclick="exportCode()" style="width: 100%; margin-top: 10px; background: rgb(74, 144, 226); color: white; border: none; padding: 10px; cursor: pointer; font-weight: bold; border-radius: 5px; display: block;">GÉNÉRER CODE</button>
+        </div>
+        <div style="flex:1;">
+            <div id="npc-slots" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; background:#000; height:200px; padding:10px; border-radius:8px;"><div class="fruit-card rarity-Mythical" style="font-size:10px;"><img src="https://api.dicebear.com" width="40"><br>Gas</div><div class="fruit-card rarity-Common" style="font-size:10px;"><img src="https://api.dicebear.com" width="40"><br>Spike</div><div class="fruit-card rarity-Common" style="font-size:10px;"><img src="https://api.dicebear.com" width="40"><br>Spin</div><div class="fruit-card rarity-Common" style="font-size:10px;"><img src="https://api.dicebear.com" width="40"><br>Rocket</div></div>
+            <div style="text-align:center; color:gold; font-weight:bold; margin-top:5px;">Valeur: <span id="n-val">5 392 500</span></div>
+        </div>
+    </div>
+    <div id="diff-msg" style="text-align: center; margin: 15px; font-weight: bold; color: rgb(46, 204, 113);" class="">ÉQUITABLE ✓</div>
+    <div style="display:flex; gap:10px;">
+        <button id="accept-btn" onclick="startTradeTimer()" style="flex: 2 1 0%; padding: 15px; background: gold; font-weight: bold; border: none; border-radius: 8px; cursor: not-allowed; font-size: 18px; opacity: 0.5;" disabled="">CONFIRMER</button>
+        <button onclick="closeTrade()" style="flex:1; background:#444; color:white; border:none; border-radius:8px; cursor:pointer;">ANNULER</button>
+    </div>
+    <div id="fruit-selector-modal" style="display: none;">
+        <h3 style="text-align:center;">Choisir un fruit</h3>
+        <div id="selector-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:10px; overflow-y:auto; height:80%;"><div class="fruit-card rarity-Mythical" onclick="pTradeIndices.push(0); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Mammoth</div><div class="fruit-card rarity-Uncommon" onclick="pTradeIndices.push(1); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Ice</div><div class="fruit-card rarity-Common" onclick="pTradeIndices.push(2); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Blade</div><div class="fruit-card rarity-Rare" onclick="pTradeIndices.push(3); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Magma</div><div class="fruit-card rarity-Common" onclick="pTradeIndices.push(4); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Bomb</div><div class="fruit-card rarity-Common" onclick="pTradeIndices.push(5); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Rocket</div><div class="fruit-card rarity-Common" onclick="pTradeIndices.push(6); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Bomb</div><div class="fruit-card rarity-Uncommon" onclick="pTradeIndices.push(7); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Ice</div><div class="fruit-card rarity-Legendary" onclick="pTradeIndices.push(8); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="https://api.dicebear.com">Sound</div></div>
+        <button onclick="closeSelector()" style="width:100%; background:#ff4757; color:white; border:none; padding:12px; margin-top:10px; cursor:pointer; border-radius:8px; font-weight:bold;">RETOUR</button>
+    </div>
+</div>
+<script>
+    let money = 1000000; let inventory = []; let playerXP = 0; let playerLvl = 1; 
+    let hasKitsuneTitle = false; let selectedIdx = null; let tradeInterval = null;
+    let pTradeIndices = []; let npcTradeItems = [];
+ 
+const fruits = [
+    // COMMON
+    { name: "Rocket", rarity: "Common", weight: 45, price: 5000, val: 5000, img: "https://api.dicebear.com" },
+    { name: "Spin", rarity: "Common", weight: 40, price: 7500, val: 7500, img: "https://api.dicebear.com" },
+    { name: "Blade", rarity: "Common", weight: 35, price: 30000, val: 30000, img: "https://api.dicebear.com" },
+    { name: "Spring", rarity: "Common", weight: 30, price: 60000, val: 60000, img: "https://api.dicebear.com" },
+    { name: "Bomb", rarity: "Common", weight: 28, price: 80000, val: 80000, img: "https://api.dicebear.com" },
+    { name: "Smoke", rarity: "Common", weight: 25, price: 100000, val: 100000, img: "https://api.dicebear.com" },
+    { name: "Spike", rarity: "Common", weight: 22, price: 180000, val: 180000, img: "https://api.dicebear.com" },
+ 
+    // UNCOMMON
+    { name: "Flame", rarity: "Uncommon", weight: 20, price: 250000, val: 250000, img: "https://api.dicebear.com" },
+    { name: "Falcon", rarity: "Uncommon", weight: 19, price: 300000, val: 300000, img: "https://api.dicebear.com" },
+    { name: "Ice", rarity: "Uncommon", weight: 18, price: 350000, val: 350000, img: "https://api.dicebear.com" },
+    { name: "Sand", rarity: "Uncommon", weight: 17, price: 420000, val: 420000, img: "https://api.dicebear.com" },
+    { name: "Dark", rarity: "Uncommon", weight: 16, price: 500000, val: 500000, img: "https://api.dicebear.com" },
+    { name: "Diamond", rarity: "Uncommon", weight: 15, price: 600000, val: 600000, img: "https://api.dicebear.com" },
+ 
+    // RARE
+    { name: "Light", rarity: "Rare", weight: 12, price: 650000, val: 1100000, img: "https://api.dicebear.com" },
+    { name: "Rubber", rarity: "Rare", weight: 11, price: 750000, val: 1200000, img: "https://api.dicebear.com" },
+    { name: "Barrier", rarity: "Rare", weight: 10, price: 800000, val: 1250000, img: "https://api.dicebear.com" },
+    { name: "Ghost", rarity: "Rare", weight: 9, price: 940000, val: 1275000, img: "https://api.dicebear.com" },
+    { name: "Magma", rarity: "Rare", weight: 8, price: 850000, val: 1300000, img: "https://api.dicebear.com" },
+    { name: "Quake", rarity: "Rare", weight: 7, price: 1000000, val: 1500000, img: "https://api.dicebear.com" },
+ 
+    // LEGENDARY
+    { name: "Buddha", rarity: "Legendary", weight: 5, price: 1200000, val: 2800000, img: "https://api.dicebear.com" },
+    { name: "Love", rarity: "Legendary", weight: 4.5, price: 1300000, val: 2000000, img: "https://api.dicebear.com" },
+    { name: "Spider", rarity: "Legendary", weight: 4, price: 1500000, val: 2200000, img: "https://api.dicebear.com" },
+    { name: "Sound", rarity: "Legendary", weight: 3.8, price: 1700000, val: 2300000, img: "https://api.dicebear.com" },
+    { name: "Phoenix", rarity: "Legendary", weight: 3.5, price: 1800000, val: 2500000, img: "https://api.dicebear.com" },
+    { name: "Portal", rarity: "Legendary", weight: 3, price: 1900000, val: 2400000, img: "https://api.dicebear.com" },
+    { name: "Rumble", rarity: "Legendary", weight: 2.8, price: 2100000, val: 2600000, img: "https://api.dicebear.com" },
+    { name: "Pain", rarity: "Legendary", weight: 2.5, price: 2300000, val: 2100000, img: "https://api.dicebear.com" },
+    { name: "Blizzard", rarity: "Legendary", weight: 2.2, price: 2400000, val: 3200000, img: "https://api.dicebear.com" },
+    { name: "Gravity", rarity: "Legendary", weight: 2, price: 2500000, val: 2000000, img: "https://api.dicebear.com" },
+ 
+    // MYTHICAL
+    { name: "Mammoth", rarity: "Mythical", weight: 1.5, price: 2700000, val: 4000000, img: "https://api.dicebear.com" },
+    { name: "T-Rex", rarity: "Mythical", weight: 1.3, price: 2700000, val: 4500000, img: "https://api.dicebear.com" },
+    { name: "Dough", rarity: "Mythical", weight: 1, price: 2800000, val: 5000000, img: "https://api.dicebear.com" },
+    { name: "Shadow", rarity: "Mythical", weight: 0.9, price: 2900000, val: 3500000, img: "https://api.dicebear.com" },
+    { name: "Venom", rarity: "Mythical", weight: 0.8, price: 3000000, val: 4800000, img: "https://api.dicebear.com" },
+    { name: "Control", rarity: "Mythical", weight: 0.7, price: 3200000, val: 4000000, img: "https://api.dicebear.com" },
+    { name: "Gas", rarity: "Mythical", weight: 0.6, price: 3300000, val: 5200000, img: "https://api.dicebear.com" },
+    { name: "Spirit", rarity: "Mythical", weight: 0.5, price: 3400000, val: 5500000, img: "https://api.dicebear.com" },
+    { name: "Leopard", rarity: "Mythical", weight: 0.4, price: 5000000, val: 7500000, img: "https://api.dicebear.com" },
+    { name: "Kitsune", rarity: "Mythical", weight: 0.3, price: 8000000, val: 12000000, img: "https://api.dicebear.com" },
+    { name: "Dragon", rarity: "Mythical", weight: 0.2, price: 10000000, val: 20000000, img: "https://api.dicebear.com" },
+  { name: "Dragon Amber", rarity: "Amber", weight: 0, price: 200000000, val: 150000000, img: "https://api.dicebear.com" }
+];
+ 
+    const allSkins = [
+        { name: "Krimson Kitsune", rarity: "Amber", val: 85000000, isSkin: true, img: "https://api.dicebear.com" },
+        { name: "Galaxy Kitsune", rarity: "Amber", val: 90000000, isSkin: true, img: "https://api.dicebear.com" },
+        { name: "Werewolf", rarity: "Mythical", val: 45000000, isSkin: true, img: "https://api.dicebear.com" }
+    ];
+ 
+    const sunkenChest = { name: "Sunken Chest", rarity: "Legendary", isChest: true, val: 40000000, img: "https://api.dicebear.com" };
+ 
+    function save() { localStorage.setItem('bloxUltimate_FINAL', JSON.stringify({ money, inventory, playerXP, playerLvl, hasKitsuneTitle, name: document.getElementById('player-name').value })); }
+    function load() { 
+        const s = localStorage.getItem('bloxUltimate_FINAL'); 
+        if(s) { const d = JSON.parse(s); money = d.money; inventory = d.inventory; playerXP = d.playerXP || 0; playerLvl = d.playerLvl || 1; hasKitsuneTitle = d.hasKitsuneTitle || false; document.getElementById('player-name').value = d.name || "Joueur"; } 
+    }
+ 
+    function updateUI() {
+        document.getElementById('money').innerText = money.toLocaleString();
+        document.getElementById('inventory').innerHTML = inventory.map((f, i) => `
+            <div class="fruit-card rarity-${f.rarity} ${f.isFav?'fav':''}" onclick="selectItem(${i})">
+                ${f.isSkin ? '<span class="badge-skin">SKIN</span>' : ''}
+                <img src="${f.img}"><br><b>${f.name}</b>
+            </div>`).join('');
+        updateProfileUI(); save();
+    }
+ 
+    function updateProfileUI() {
+        document.getElementById('player-lvl').innerText = playerLvl;
+        document.getElementById('player-xp').innerText = playerXP;
+        document.getElementById('xp-next').innerText = playerLvl * 100;
+        document.getElementById('lvl-fill').style.width = (playerXP / (playerLvl * 100) * 100) + "%";
+        const ts = document.getElementById('display-title');
+        if(hasKitsuneTitle) { ts.innerText = "King of Kitsune"; ts.className = "player-title title-kitsune-king"; }
+        else { ts.innerText = playerLvl >= 10 ? "Expert" : "Recrue"; ts.className = "player-title " + (playerLvl >= 10 ? "title-expert" : "title-newbie"); }
+    }
+ 
+    function selectItem(i) {
+        selectedIdx = i; const item = inventory[i];
+        if (item.isChest) { if(confirm("Ouvrir ce Sunken Chest ?")) openChest(i); return; }
+        document.getElementById('actions').style.display = 'flex';
+        document.getElementById('sel-name').innerText = item.name + (item.isFav ? " ⭐" : "");
+    }
+ 
+    function toggleFav() { inventory[selectedIdx].isFav = !inventory[selectedIdx].isFav; updateUI(); selectItem(selectedIdx); }
+    function sellFruit() { if(inventory[selectedIdx].isFav) return alert("Retire le favori !"); money += (inventory[selectedIdx].price * 0.5 || 1000); inventory.splice(selectedIdx, 1); document.getElementById('actions').style.display = 'none'; updateUI(); }
+ 
+    function openChest(idx) {
+        inventory.splice(idx, 1); updateUI();
+        const winner = allSkins[Math.floor(Math.random()*allSkins.length)];
+        const rail = document.getElementById('gacha-rail');
+        rail.style.transition = 'none'; rail.style.transform = 'translateX(0)';
+        rail.innerHTML = Array(85).fill().map(() => { const s = allSkins[Math.floor(Math.random()*allSkins.length)]; return `<div class="gacha-item rarity-${s.rarity}"><img src="${s.img}" width="60"><div>${s.name}</div></div>`; }).join('');
+        rail.children[70].innerHTML = `<img src="${winner.img}" width="60"><div>${winner.name}</div>`;
+        setTimeout(() => { rail.style.transition = 'transform 4.5s cubic-bezier(0.1, 0, 0.1, 1)'; rail.style.transform = `translateX(-${(70 * 180) - (document.querySelector('.gacha-viewport').offsetWidth / 2) + 90}px)`; }, 50);
+        setTimeout(() => { inventory.push({...winner}); addXP(50); updateUI(); alert("Nouveau Skin !"); }, 4700);
+    }
+ 
+    function startRoll() {
+        if(money < 50000) return alert("Besoin de 50k Beli !");
+        money -= 50000; updateUI();
+        const win = getWin(); const rail = document.getElementById('gacha-rail');
+        rail.style.transition = 'none'; rail.style.transform = 'translateX(0)';
+        const pool = fruits.filter(f => f.rarity !== "Amber");
+        rail.innerHTML = Array(85).fill().map(() => { const f = pool[Math.floor(Math.random()*pool.length)]; return `<div class="gacha-item rarity-${f.rarity}"><img src="${f.img}" width="60"><div>${f.name}</div></div>`; }).join('');
+        rail.children[70].innerHTML = `<img src="${win.img}" width="60"><div>${win.name}</div>`;
+        setTimeout(() => { rail.style.transition = 'transform 4.5s cubic-bezier(0.1, 0, 0.1, 1)'; rail.style.transform = `translateX(-${(70 * 180) - (document.querySelector('.gacha-viewport').offsetWidth / 2) + 90}px)`; }, 50);
+        setTimeout(() => { inventory.push({...win}); addXP(15); updateUI(); }, 4700);
+    }
+ 
+    function getWin() { const p = fruits.filter(f => f.rarity !== "Amber"); const t = p.reduce((s,f) => s+f.weight, 0); let r = Math.random()*t; for(let f of p) { if(r < f.weight) return f; r -= f.weight; } }
+ 
+    function openTrade() { pTradeIndices = []; npcTradeItems = []; document.getElementById('trade-title').innerText = "TRADE NPC"; document.getElementById('btn-gen-code').style.display = "block"; document.getElementById('accept-btn').onclick = startTradeTimer; document.getElementById('trade-ui').style.display = 'block'; refreshTrade(); }
+    function closeTrade() { document.getElementById('trade-ui').style.display = 'none'; if(tradeInterval) clearInterval(tradeInterval); }
+    function openSelector() { 
+        document.getElementById('fruit-selector-modal').style.display = 'block'; 
+        document.getElementById('selector-grid').innerHTML = inventory.map((f, i) => {
+            if(pTradeIndices.includes(i) || f.isFav) return '';
+            return `<div class="fruit-card rarity-${f.rarity}" onclick="pTradeIndices.push(${i}); if(document.getElementById('trade-title').innerText==='TRADE NPC')npcOffer(); refreshTrade(); closeSelector();"><img src="${f.img}">${f.name}</div>`;
+        }).join(''); 
+    }
+    function closeSelector() { document.getElementById('fruit-selector-modal').style.display = 'none'; }
+    function npcOffer() {
+        let pV = pTradeIndices.reduce((s,i) => s + inventory[i].val, 0); npcTradeItems = []; let cur = 0;
+        let pool = [...fruits].filter(f => f.rarity !== "Amber").sort((a,b)=>b.val-a.val);
+        for(let f of pool) { if(npcTradeItems.length < 4 && (cur+f.val) <= pV * 1.35) { npcTradeItems.push(f); cur += f.val; } }
+    }
+    function refreshTrade() {
+        const ps = document.getElementById('p-slots'); const ns = document.getElementById('npc-slots');
+        ps.innerHTML = ''; ns.innerHTML = ''; let pV = 0, nV = 0;
+        for(let i=0; i<4; i++) {
+            if(pTradeIndices[i] !== undefined) { let f = inventory[pTradeIndices[i]]; pV += f.val; ps.innerHTML += `<div class="fruit-card rarity-${f.rarity}" style="font-size:10px;" onclick="pTradeIndices.splice(${i},1);refreshTrade()"><img src="${f.img}" width="40"><br>${f.name}</div>`; }
+            else ps.innerHTML += `<div style="border:2px dashed #444; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="openSelector()">+</div>`;
+            if(npcTradeItems[i]) { nV += npcTradeItems[i].val; ns.innerHTML += `<div class="fruit-card rarity-${npcTradeItems[i].rarity}" style="font-size:10px;"><img src="${npcTradeItems[i].img}" width="40"><br>${npcTradeItems[i].name}</div>`; }
+            else ns.innerHTML += `<div style="border:2px dashed #333;"></div>`;
+        }
+        document.getElementById('p-val').innerText = pV.toLocaleString(); document.getElementById('n-val').innerText = nV.toLocaleString();
+        const btn = document.getElementById('accept-btn'); const msg = document.getElementById('diff-msg');
+        if(pV > 0 && (Math.abs(pV - nV) / Math.max(pV, nV) <= 0.4)) { btn.disabled = false; msg.innerText = "ÉQUITABLE ✓"; msg.style.color = "#2ecc71"; msg.classList.remove('shake'); }
+        else { btn.disabled = true; msg.innerText = "VALEUR INÉGALE ⚠"; msg.style.color = "#ff4757"; if(pV>0) msg.classList.add('shake'); }
+    }
+ 
+    function exportCode() { const d = { type: "INIT", f: pTradeIndices.map(i => inventory[i].name), v: pTradeIndices.reduce((s,i)=>s+inventory[i].val,0), n: document.getElementById('player-name').value, t: document.getElementById('display-title').innerText }; prompt("CODE POUR JOUEUR B :", btoa(JSON.stringify(d))); closeTrade(); }
+    function importCode() {
+        const c = prompt("Colle le code :"); if(!c) return;
+        try {
+            const d = JSON.parse(atob(c));
+            if(d.type === "INIT") {
+                npcTradeItems = d.f.map(n => [...fruits, ...allSkins, sunkenChest].find(x => x.name === n)).filter(x=>x);
+                pTradeIndices = []; document.getElementById('trade-title').innerText = "TRADE AVEC " + d.n;
+                document.getElementById('btn-gen-code').style.display = "none";
+                document.getElementById('accept-btn').onclick = () => {
+                    const res = { type: "FINAL", fA: d.f, fB: pTradeIndices.map(i => inventory[i].name), vA: d.v, vB: pTradeIndices.reduce((s,i)=>s+inventory[i].val,0) };
+                    prompt("CODE FINAL POUR JOUEUR A :", btoa(JSON.stringify(res))); closeTrade();
+                };
+                document.getElementById('trade-ui').style.display = 'block'; refreshTrade();
+            } else if(d.type === "FINAL") {
+                if(confirm("Confirmer l'échange final ?")) {
+                    d.fA.forEach(n => { const idx = inventory.findIndex(x => x.name === n && !x.isFav); if(idx !== -1) inventory.splice(idx, 1); });
+                    d.fB.forEach(n => { const f = [...fruits, ...allSkins, sunkenChest].find(x => x.name === n); if(f) inventory.push({...f}); });
+                    updateUI(); alert("Succès !");
+                }
+            }
+        } catch(e) { alert("Code erroné"); }
+    }
+ 
+    function activateDLC() {
+        const v = document.getElementById('dlc-input').value.toUpperCase().trim();
+        if(v === "KOFKC1220") { hasKitsuneTitle = true; alert("Titre débloqué !"); }
+        else if(v === "SCC1220") { inventory.push({...sunkenChest}); alert("Coffre reçu !"); }
+        else if(v === "AWDBFC1220") { inventory.push({...fruits.find(f => f.name === "Dragon Amber"), isFav: true}); }
+        else alert("Code invalide");
+        document.getElementById('dlc-input').value = ""; updateUI();
+    }
+ 
+    function startTradeTimer() {
+    // 1. Empêcher le spam en désactivant le bouton immédiatement
+    const btn = document.getElementById('accept-btn');
+    if (btn.disabled) return; // Sécurité supplémentaire
+    btn.disabled = true; 
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+ 
+    document.getElementById('cooldown-timer').style.display = 'block';
+    let c = 10;
+ 
+    // On s'assure qu'aucun autre intervalle ne tourne déjà
+    if (tradeInterval) clearInterval(tradeInterval);
+ 
+    tradeInterval = setInterval(() => {
+        c--;
+        document.getElementById('cooldown-timer').innerText = c;
+ 
+        if(c <= 0) {
+            clearInterval(tradeInterval);
+            tradeInterval = null; // Reset de l'intervalle
+ 
+            // Transfert des fruits
+            pTradeIndices.sort((a,b)=>b-a).forEach(i=>inventory.splice(i,1));
+            npcTradeItems.forEach(f=>inventory.push({...f}));
+ 
+            closeTrade();
+            updateUI();
+            alert("Trade NPC réussi !");
+        }
+    }, 1000);
+}
+ 
+ 
+    load(); updateUI();
+function sellAllNonFav() {
+    let totalGain = 0;
+    let initialCount = inventory.length;
+ 
+    // On boucle à l'envers pour ne pas corrompre les index pendant la suppression
+    for (let i = inventory.length - 1; i >= 0; i--) {
+        if (!inventory[i].isFav) {
+            // On récupère le prix du fruit (on prend 50% comme pour la vente simple)
+            let fruitPrice = inventory[i].price || 1000;
+            totalGain += (fruitPrice * 0.5);
+            inventory.splice(i, 1);
+        }
+    }
+ 
+    let soldCount = initialCount - inventory.length;
+ 
+    if (soldCount > 0) {
+        money += totalGain;
+        // On cache le panneau d'actions au cas où le fruit sélectionné a été vendu
+        document.getElementById('actions').style.display = 'none'; 
+        updateUI(); 
+        alert("Vendu " + soldCount + " fruits pour " + totalGain.toLocaleString() + "$ !");
+    } else {
+        alert("Aucun fruit à vendre (soit l'inventaire est vide, soit tout est en favori ⭐)");
+    }
+}
+</script>
+ 
+</body></html>
