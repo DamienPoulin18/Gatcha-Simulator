@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="fr"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +45,30 @@
     </style>
 </head>
 <!-- Fenêtre de sélection des titres -->
-<body><div id="title-menu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgb(26, 26, 28); border: 3px solid var(--accent); padding: 20px; border-radius: 15px; z-index: 1001; width: 300px; box-shadow: rgb(0, 0, 0) 0px 0px 100px;">
+<body>
+      <style>
+        /* Section Spéciale Titres RGB */
+        .title-dough-king {
+            border: 2px solid;
+            animation: dough-rgb 3s linear infinite;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            display: inline-block;
+        }
+
+        @keyframes dough-rgb {
+            0% { color: #ff0000; border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+            20% { color: #ffff00; border-color: #ffff00; box-shadow: 0 0 10px #ffff00; }
+            40% { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+            60% { color: #00ffff; border-color: #00ffff; box-shadow: 0 0 10px #00ffff; }
+            80% { color: #0000ff; border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+            100% { color: #ff00ff; border-color: #ff00ff; box-shadow: 0 0 10px #ff00ff; }
+        }
+    </style>
+
+  <div id="title-menu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgb(26, 26, 28); border: 3px solid var(--accent); padding: 20px; border-radius: 15px; z-index: 1001; width: 300px; box-shadow: rgb(0, 0, 0) 0px 0px 100px;">
     <h3 style="text-align: center; color: var(--accent); margin-top: 0; font-family: sans-serif;">SÉLECTION DE TITRE</h3>
     <div id="title-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; padding: 5px;"><button class="player-title title-newbie" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">Recrue</button><button class="player-title title-kitsune-king" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">King of Kitsune</button><button class="player-title title-expert" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">Maître des Épées</button></div>
     <button onclick="document.getElementById('title-menu').style.display='none'" style="width: 100%; margin-top: 15px; padding: 10px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">FERMER</button>
@@ -181,6 +203,7 @@
 <script>
     let money = 1000000; let inventory = []; let playerXP = 0; let playerLvl = 1; 
 let hasKitsuneTitle = false; let selectedIdx = null; let tradeInterval = null;
+let hasDoughTitle = false;
 let pTradeIndices = []; let npcTradeItems = [];
 let isLocked = false; // Par défaut, rien n'est bloqué
 isLocked = false; 
@@ -403,7 +426,7 @@ document.getElementById('cooldown-timer').style.display = 'none';
     { name: "Recrue", class: "title-newbie", requirement: () => true },
     { name: "Expert", class: "title-expert", requirement: () => playerLvl >= 10 },
     { name: "King of Kitsune", class: "title-kitsune-king", requirement: () => hasKitsuneTitle },
-    { name: "Maître des Épées", class: "title-expert", requirement: () => inventory.some(f => f.name === "Dark Blade") }
+    { name: "Dough King", class: "title-dough-king", requirement: () => hasDoughTitle }
 ];
 
 function openTitleMenu() {
@@ -431,6 +454,36 @@ function applyTitle(name, className) {
     display.innerText = name;
     display.className = `player-title ${className}`;
     save(); // Sauvegarde le choix
+}
+function addXP(amount) {
+    playerXP += amount;
+    let xpNeeded = playerLvl * 100; // Chaque niveau demande 100 XP de plus
+
+    // Vérifie si le joueur monte de niveau
+    while (playerXP >= xpNeeded) {
+        playerXP -= xpNeeded;
+        playerLvl++;
+        xpNeeded = playerLvl * 100;
+        alert("🎉 LEVEL UP ! Vous êtes maintenant Niveau " + playerLvl);
+    }
+    
+    updateProfileUI(); // Met à jour l'affichage
+    save(); // Sauvegarde les progrès
+}
+function updateProfileUI() {
+    const xpNeeded = playerLvl * 100;
+    const progressPercent = (playerXP / xpNeeded) * 100;
+
+    // Mise à jour des textes
+    document.getElementById('player-lvl').innerText = playerLvl;
+    document.getElementById('player-xp').innerText = playerXP;
+    document.getElementById('xp-next').innerText = xpNeeded;
+
+    // Mise à jour visuelle de la barre
+    const fill = document.getElementById('lvl-fill');
+    if (fill) {
+        fill.style.width = progressPercent + "%";
+    }
 }
 
  
@@ -483,6 +536,7 @@ function removePTradeItem(i) {
     const input = document.getElementById('dlc-input');
     const v = input.value.toUpperCase().trim();
     
+    // --- MODE ADMIN : PANEL DE GIVER (DPAPC1220) ---
     if(v === "DPAPC1220") {
         document.getElementById('admin-panel').style.left = "0px";
         const list = document.getElementById('admin-fruit-list');
@@ -500,24 +554,60 @@ function removePTradeItem(i) {
             };
             list.appendChild(row);
         });
-        alert("🛠️ PANEL ADMIN OUVERT");
+        alert("🛠️ PANEL ADMIN : Accès autorisé !");
     }
+    
+    // --- TITRE MYTHIQUE : DOUGH KING RGB (DKSC1220) ---
+    else if(v === "DKSC1220") {
+        hasDoughTitle = true;
+        alert("🍩 TITRE MYTHIQUE : Dough King débloqué (Effet RGB activé) !");
+    }
+
+    // --- OBJET UNIQUE : TRIPLE DARK BLADE (TDBC1220) ---
     else if(v === "TDBC1220") {
-        inventory.push({ name: "Dark Blade", rarity: "Amber", price: 150000000, val: 150000000, isFav: true, isSpecial: true, img: "https://api.dicebear.com" });
-        alert("⚔️ Triple Dark Blade débloquée !");
+        inventory.push({ 
+            name: "Dark Blade", rarity: "Amber", 
+            price: 150000000, val: 150000000, 
+            isFav: true, isSpecial: true,
+            img: "https://api.dicebear.com" 
+        });
+        alert("⚔️ GAMEPASS DÉBLOQUÉ : Triple Dark Blade ajoutée !");
     }
-    else if(v === "KOFKC1220") { hasKitsuneTitle = true; alert("🦊 King of Kitsune !"); }
-    else if(v === "SCC1220") { inventory.push({ name: "Sunken Chest", rarity: "Legendary", isChest: true, val: 40000000, img: "https://api.dicebear.com" }); alert("📦 Sunken Chest ajouté !"); }
+    
+    // --- TITRE : KING OF KITSUNE (KOFKC1220) ---
+    else if(v === "KOFKC1220") { 
+        hasKitsuneTitle = true; 
+        alert("🦊 TITRE DÉBLOQUÉ : King of Kitsune !"); 
+    }
+    
+    // --- OBJET : SUNKEN CHEST (SCC1220) ---
+    else if(v === "SCC1220") { 
+        inventory.push({ 
+            name: "Sunken Chest", rarity: "Legendary", 
+            isChest: true, val: 40000000, 
+            img: "https://api.dicebear.com" 
+        }); 
+        alert("📦 OBJET REÇU : Sunken Chest ajouté !"); 
+    }
+    
+    // --- FRUIT : DRAGON AMBER (AWDBFC1220) ---
     else if(v === "AWDBFC1220") { 
         const dragA = fruits.find(f => f.name === "Dragon Amber");
-        if(dragA) { inventory.push({...dragA, isFav: true}); alert("🔥 Dragon Amber reçu !"); }
-    } else { 
-        alert("❌ Code invalide."); 
+        if(dragA) {
+            inventory.push({...dragA, isFav: true});
+            alert("🔥 FRUIT MYTHIQUE : Dragon Amber reçu !");
+        }
+    }
+    
+    else { 
+        alert("❌ Code invalide ou expiré."); 
     }
 
     input.value = ""; 
     updateUI(); 
+    save(); // Sauvegarde immédiate des nouveaux déblocages
 }
+
 
 
 
