@@ -154,10 +154,8 @@ let hasKitsuneTitle = false; let selectedIdx = null; let tradeInterval = null;
 let pTradeIndices = []; let npcTradeItems = [];
 let isLocked = false; // Par défaut, rien n'est bloqué
 isLocked = false; 
-let usedTradeCodes = []; // Liste des signatures de codes déjà utilisés
-
 document.getElementById('cooldown-timer').style.display = 'none';
- 
+ let usedTradeCodes = JSON.parse(localStorage.getItem('usedCodes')) || [];
  
  
 const fruits = [
@@ -387,57 +385,82 @@ function removePTradeItem(i) {
     function exportCode() { const d = { type: "INIT", f: pTradeIndices.map(i => inventory[i].name), v: pTradeIndices.reduce((s,i)=>s+inventory[i].val,0), n: document.getElementById('player-name').value, t: document.getElementById('display-title').innerText }; prompt("CODE POUR JOUEUR B :", btoa(JSON.stringify(d))); closeTrade(); }
     function importCode() {
     const c = prompt("Colle le code de trade :");
-    if (!c) return;
-
-    // 1. VÉRIFICATION ANTI-SPAM
-    if (usedTradeCodes.includes(c)) {
-        alert("🚨 Erreur : Ce code de trade a déjà été utilisé !");
+    if (!c || usedTradeCodes.includes(c)) {
+        alert(c ? "🚨 Code déjà utilisé !" : "");
         return;
     }
 
     try {
         const d = JSON.parse(atob(c));
-        
         if (d.type === "INIT") {
-            // ... (ton code actuel pour afficher le trade NPC/Joueur B) ...
+            npcTradeItems = d.f.map(n => [...fruits, sunkenChest].find(x => x && x.name === n)).filter(x=>x);
+            pTradeIndices = []; 
+            document.getElementById('trade-title').innerText = "TRADE AVEC " + d.n;
             
             document.getElementById('accept-btn').onclick = () => {
-                // ... (ton code pour générer le FINAL) ...
-                
-                // On marque le code INIT comme utilisé
+                const res = { 
+                    type: "FINAL", fA: d.f, 
+                    fB: pTradeIndices.map(i => inventory[i].name),
+                    sig: Math.random().toString(36) 
+                };
                 usedTradeCodes.push(c); 
-                prompt("CODE FINAL (Donne-le au Joueur A) :", btoa(JSON.stringify(res)));
+                localStorage.setItem('usedCodes', JSON.stringify(usedTradeCodes));
+                prompt("CODE FINAL :", btoa(JSON.stringify(res))); 
                 closeTrade();
             };
-            
             document.getElementById('trade-ui').style.display = 'block'; 
             refreshTrade();
-
         } else if (d.type === "FINAL") {
-            if (confirm("Confirmer l'échange final ?")) {
-                // On marque le code FINAL comme utilisé
-                usedTradeCodes.push(c); 
-
-                // ... (ton code actuel pour transférer les fruits fA et fB) ...
-                
-                updateUI();
-                alert("✅ Trade réussi ! Le code est maintenant invalide.");
+            if (confirm("Confirmer l'échange ?")) {
+                usedTradeCodes.push(c);
+                localStorage.setItem('usedCodes', JSON.stringify(usedTradeCodes));
+                // Logique de transfert...
+                alert("✅ Trade réussi !");
             }
         }
-    } catch(e) {
-        alert("Code corrompu ou invalide.");
-    }
+    } catch(e) { alert("Code invalide."); }
 }
-
  
     function activateDLC() {
-        const v = document.getElementById('dlc-input').value.toUpperCase().trim();
-        if(v === "KOFKC1220") { hasKitsuneTitle = true; alert("Titre débloqué !"); }
-        else if(v === "SCC1220") { inventory.push({...sunkenChest}); alert("Coffre reçu !"); }
-        else if(v === "AWDBFC1220") { inventory.push({...fruits.find(f => f.name === "Dragon Amber"), isFav: true}); }
-        else alert("Code invalide");
-        document.getElementById('dlc-input').value = ""; updateUI();
+    const input = document.getElementById('dlc-input');
+    const v = input.value.toUpperCase().trim();
+    
+    // CODE : DARK BLADE (Triple Dark Blade)
+    if(v === "TDBC1220") {
+        inventory.push({ 
+            name: "Dark Blade", rarity: "Amber", 
+            price: 150000000, val: 150000000, 
+            isFav: true, isSpecial: true, 
+            img: "https://api.dicebear.com" 
+        });
+        alert("⚔️ CODE SECRET : Triple Dark Blade débloquée !");
     }
+    // CODE : TITRE KING OF KITSUNE
+    else if(v === "KOFKC1220") { 
+        hasKitsuneTitle = true; 
+        alert("🦊 TITRE DÉBLOQUÉ : King of Kitsune !"); 
+    }
+    // CODE : SUNKEN CHEST
+    else if(v === "SCC1220") { 
+        inventory.push({...sunkenChest}); 
+        alert("📦 COFFRE REÇU : Sunken Chest ajouté !"); 
+    }
+    // CODE : DRAGON AMBER
+    else if(v === "AWDBFC1220") { 
+        const dragA = fruits.find(f => f.name === "Dragon Amber");
+        if(dragA) {
+            inventory.push({...dragA, isFav: true});
+            alert("🔥 DRAGON AMBER : Fruit mythique reçu !");
+        }
+    }
+    else { 
+        alert("❌ Code invalide."); 
+    }
+
+    input.value = ""; 
+    updateUI(); 
+}
+
  
     function startTradeTimer() {
     if (isLocked) return; // Sécurité si déjà lancé
