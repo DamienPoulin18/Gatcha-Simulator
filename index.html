@@ -272,11 +272,43 @@ const fruits = [
  
     const sunkenChest = { name: "Sunken Chest", rarity: "Legendary", isChest: true, val: 40000000, img: "https://api.dicebear.com" };
  
-    function save() { localStorage.setItem('bloxUltimate_FINAL', JSON.stringify({ money, inventory, playerXP, playerLvl, hasKitsuneTitle, name: document.getElementById('player-name').value })); }
-    function load() { 
-        const s = localStorage.getItem('bloxUltimate_FINAL'); 
-        if(s) { const d = JSON.parse(s); money = d.money; inventory = d.inventory; playerXP = d.playerXP || 0; playerLvl = d.playerLvl || 1; hasKitsuneTitle = d.hasKitsuneTitle || false; document.getElementById('player-name').value = d.name || "Joueur"; } 
+    function save() {
+    const data = {
+        money: money,
+        inventory: inventory,
+        playerXP: playerXP,
+        playerLvl: playerLvl,
+        hasKitsuneTitle: hasKitsuneTitle,
+        hasDoughTitle: hasDoughTitle, // Ajouté
+        currentTitleName: document.getElementById('display-title').innerText, // Ajouté
+        currentTitleClass: document.getElementById('display-title').className, // Ajouté
+        playerName: document.getElementById('player-name').value
+    };
+    localStorage.setItem('bloxUltimate_FINAL', JSON.stringify(data));
+}
+
+    function load() {
+    const s = localStorage.getItem('bloxUltimate_FINAL');
+    if (s) {
+        const d = JSON.parse(s);
+        money = d.money;
+        inventory = d.inventory;
+        playerXP = d.playerXP || 0;
+        playerLvl = d.playerLvl || 1;
+        hasKitsuneTitle = d.hasKitsuneTitle || false;
+        hasDoughTitle = d.hasDoughTitle || false; // Chargement
+        
+        // Restaurer le titre visuel
+        const ts = document.getElementById('display-title');
+        if (d.currentTitleName) {
+            ts.innerText = d.currentTitleName;
+            ts.className = d.currentTitleClass;
+        }
+        
+        document.getElementById('player-name').value = d.playerName || "Joueur";
     }
+}
+
  
     function updateUI() {
         document.getElementById('money').innerText = money.toLocaleString();
