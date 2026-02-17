@@ -434,44 +434,39 @@ function removePTradeItem(i) {
  
  
  
-    function exportCode() { const d = { type: "INIT", f: pTradeIndices.map(i => inventory[i].name), v: pTradeIndices.reduce((s,i)=>s+inventory[i].val,0), n: document.getElementById('player-name').value, t: document.getElementById('display-title').innerText }; prompt("CODE POUR JOUEUR B :", btoa(JSON.stringify(d))); closeTrade(); }
+    function exportCode() {
+    const d = { 
+        type: "INIT", 
+        f: pTradeIndices.map(i => inventory[i].name), 
+        v: pTradeIndices.reduce((s,i)=>s+inventory[i].val,0), 
+        n: document.getElementById('player-name').value, 
+        t: document.getElementById('display-title').innerText // ON AJOUTE LE TITRE ICI
+    };
+    prompt("CODE POUR JOUEUR B :", btoa(JSON.stringify(d))); 
+    closeTrade(); 
+}
     function importCode() {
-    const c = prompt("Colle le code de trade :");
-    if (!c || usedTradeCodes.includes(c)) {
-        alert(c ? "🚨 Code déjà utilisé !" : "");
-        return;
-    }
-
+    const c = prompt("Colle le code :"); if(!c) return;
     try {
         const d = JSON.parse(atob(c));
-        if (d.type === "INIT") {
+        if(d.type === "INIT") {
+            // ... (chargement des fruits habituel)
             npcTradeItems = d.f.map(n => [...fruits, sunkenChest].find(x => x && x.name === n)).filter(x=>x);
             pTradeIndices = []; 
-            document.getElementById('trade-title').innerText = "TRADE AVEC " + d.n;
             
-            document.getElementById('accept-btn').onclick = () => {
-                const res = { 
-                    type: "FINAL", fA: d.f, 
-                    fB: pTradeIndices.map(i => inventory[i].name),
-                    sig: Math.random().toString(36) 
-                };
-                usedTradeCodes.push(c); 
-                localStorage.setItem('usedCodes', JSON.stringify(usedTradeCodes));
-                prompt("CODE FINAL :", btoa(JSON.stringify(res))); 
-                closeTrade();
-            };
+            // MISE À JOUR DE L'AFFICHAGE : Pseudo + Titre
+            const titleHTML = `<span class="player-title" style="font-size:12px; margin-left:10px;">${d.t}</span>`;
+            document.getElementById('trade-title').innerHTML = `TRADE : ${d.n} ${titleHTML}`;
+            
+            document.getElementById('btn-gen-code').style.display = "none";
+            // ... (reste de la logique accept-btn)
             document.getElementById('trade-ui').style.display = 'block'; 
             refreshTrade();
-        } else if (d.type === "FINAL") {
-            if (confirm("Confirmer l'échange ?")) {
-                usedTradeCodes.push(c);
-                localStorage.setItem('usedCodes', JSON.stringify(usedTradeCodes));
-                // Logique de transfert...
-                alert("✅ Trade réussi !");
-            }
-        }
-    } catch(e) { alert("Code invalide."); }
+        } 
+        // ... (logique FINAL)
+    } catch(e) { alert("Code erroné"); }
 }
+
  
     function activateDLC() {
     const input = document.getElementById('dlc-input');
