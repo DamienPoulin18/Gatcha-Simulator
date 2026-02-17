@@ -42,9 +42,17 @@
         #fruit-selector-modal { display: none; position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; background: #2c2c2e; border: 3px solid var(--accent); z-index: 200; border-radius: 15px; padding: 20px; }
         .shake { animation: shake 0.2s infinite; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+    
     </style>
 </head>
-<body>
+<!-- Fenêtre de sélection des titres -->
+<body><div id="title-menu" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgb(26, 26, 28); border: 3px solid var(--accent); padding: 20px; border-radius: 15px; z-index: 1001; width: 300px; box-shadow: rgb(0, 0, 0) 0px 0px 100px;">
+    <h3 style="text-align: center; color: var(--accent); margin-top: 0; font-family: sans-serif;">SÉLECTION DE TITRE</h3>
+    <div id="title-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; padding: 5px;"><button class="player-title title-newbie" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">Recrue</button><button class="player-title title-kitsune-king" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">King of Kitsune</button><button class="player-title title-expert" style="padding: 10px; cursor: pointer; text-align: center; background: rgb(34, 34, 34); border: 1px solid rgb(68, 68, 68); margin-bottom: 5px;">Maître des Épées</button></div>
+    <button onclick="document.getElementById('title-menu').style.display='none'" style="width: 100%; margin-top: 15px; padding: 10px; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">FERMER</button>
+</div>
+
+
 <div id="admin-panel" style="position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: #111; border-right: 4px solid orange; transition: 0.4s; z-index: 1000; padding: 20px; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.5);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="color: orange; margin: 0; font-size: 1.2em;">🔧 ADMIN PANEL</h2>
@@ -66,7 +74,7 @@
         <div id="gacha-rail" class="gacha-rail" style="transition: transform 4.5s cubic-bezier(0.1, 0, 0.1, 1); transform: translateX(-12086px);"><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Quake</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Ice</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Buddha</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Pain</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Portal</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Dark</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Mammoth</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Buddha</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Falcon</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Spirit</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Kitsune</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Spider</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Gas</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Bomb</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Sound</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Phoenix</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Shadow</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Spirit</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Gravity</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Venom</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Ghost</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Dark</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Quake</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Light</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Leopard</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>T-Rex</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Venom</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Pain</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spike</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Rocket</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Venom</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Rumble</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Gas</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Control</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Smoke</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spring</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Dark</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Bomb</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Gas</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Bomb</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Gravity</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dough</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Control</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Rubber</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Magma</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Rubber</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Flame</div></div><div class="gacha-item rarity-Rare"><img src="https://api.dicebear.com" width="60"><div>Magma</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Dark</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Blizzard</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Shadow</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Dragon</div></div><div class="gacha-item rarity-Uncommon"><img src="https://api.dicebear.com" width="60"><div>Ice</div></div><div class="gacha-item rarity-Legendary"><img src="https://api.dicebear.com" width="60"><div>Blizzard</div></div><div class="gacha-item rarity-Mythical"><img src="https://api.dicebear.com" width="60"><div>Kitsune</div></div><div class="gacha-item rarity-Common"><img src="https://api.dicebear.com" width="60"><div>Spin</div></div></div>
     </div>
     <div style="display: flex; gap: 30px; align-items: center; margin-top: 15px;">
-        <h2 style="color: #2ecc71; margin:0;">Beli: <span id="money">175 488 750</span>$</h2>
+        <h2 style="color: #2ecc71; margin:0;">Beli: <span id="money">2 509 921 750</span>$</h2>
         <button class="btn-roll" id="roll-btn" onclick="startRoll()" style="padding:12px 40px; background:var(--accent); font-weight:bold; border:none; border-radius:5px; cursor:pointer;">SPIN GACHA</button>
     </div>
 </div>
@@ -77,10 +85,10 @@
             <input type="text" id="player-name" style="background:none; border:none; color:white; font-weight:bold; border-bottom:1px solid #555; width:120px;" value="Joueur" onchange="save()">
             <span id="display-title" class="player-title title-kitsune-king">King of Kitsune</span>
         </div>
-        <b>Niveau <span id="player-lvl">1</span></b>
+        <b>Niveau <span id="player-lvl">4</span></b>
     </div>
-    <div class="level-bar"><div id="lvl-fill" class="level-fill" style="width: 0%;"></div></div>
-    <small style="color:#888;">XP: <span id="player-xp">0</span> / <span id="xp-next">100</span></small>
+    <div class="level-bar"><div id="lvl-fill" class="level-fill" style="width: 71.25%;"></div></div>
+    <small style="color:#888;">XP: <span id="player-xp">285</span> / <span id="xp-next">400</span></small>
 </div>
  
 <div style="margin-bottom: 20px;">
@@ -98,65 +106,35 @@
         <button onclick="sellAllNonFav()" style="background:#f39c12; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">💰 VENDRE TOUT (Sauf ⭐)</button>
         <button onclick="openTrade()" style="background:#007bff; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">🤝 TRADE NPC</button>
         <button onclick="importCode()" style="background:#2ecc71; color:white; border:none; padding:10px 15px; cursor:pointer; border-radius:5px; font-weight:bold; font-size: 13px;">📥 IMPORT CODE</button>
+    <!-- À insérer dans ta div player-profile actuelle -->
+<button onclick="openTitleMenu()" style="margin-top: 10px; width: 100%; padding: 6px; font-size: 0.75em; background: #2c2c2e; color: #ffd700; border: 1px solid #ffd700; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;">
+    🏷️ CHANGER DE TITRE
+</button>
+
+    
     </div>
 </div>
  
         </div>
     </div>
     <div id="inventory" class="inventory-grid">
-            <div class="fruit-card rarity-Amber fav" onclick="selectItem(0)">
+            <div class="fruit-card rarity-Mythical fav" onclick="selectItem(0)">
                 
-                <img src="https://api.dicebear.com"><br><b>Dragon Amber</b>
+                <img src="https://api.dicebear.com"><br><b>Gas</b>
             </div>
-            <div class="fruit-card rarity-Amber fav" onclick="selectItem(1)">
-                
-                <img src="https://api.dicebear.com"><br><b>Dragon Amber</b>
-            </div>
-            <div class="fruit-card rarity-Amber fav" onclick="selectItem(2)">
-                
-                <img src="https://api.dicebear.com"><br><b>Dragon Amber</b>
-            </div>
-            <div class="fruit-card rarity-Legendary " onclick="selectItem(3)">
-                
-                <img src="https://api.dicebear.com"><br><b>Sunken Chest</b>
-            </div>
-            <div class="fruit-card rarity-Common " onclick="selectItem(4)">
-                
-                <img src="https://api.dicebear.com"><br><b>Spring</b>
-            </div>
-            <div class="fruit-card rarity-Mythical fav" onclick="selectItem(5)">
+            <div class="fruit-card rarity-Mythical fav" onclick="selectItem(1)">
                 <span class="badge-skin">SKIN</span>
                 <img src="https://api.dicebear.com"><br><b>Werewolf</b>
             </div>
-            <div class="fruit-card rarity-Common " onclick="selectItem(6)">
+            <div class="fruit-card rarity-Common " onclick="selectItem(2)">
                 
-                <img src="https://api.dicebear.com"><br><b>Spin</b>
+                <img src="https://api.dicebear.com"><br><b>Rocket</b>
             </div>
-            <div class="fruit-card rarity-Uncommon " onclick="selectItem(7)">
+            <div class="fruit-card rarity-Amber fav" onclick="selectItem(3)">
                 
-                <img src="https://api.dicebear.com"><br><b>Flame</b>
+                <img src="https://api.dicebear.com"><br><b>Dragon Amber</b>
             </div>
-            <div class="fruit-card rarity-Common " onclick="selectItem(8)">
-                
-                <img src="https://api.dicebear.com"><br><b>Spin</b>
-            </div>
-            <div class="fruit-card rarity-Common " onclick="selectItem(9)">
-                
-                <img src="https://api.dicebear.com"><br><b>Spin</b>
-            </div>
-            <div class="fruit-card rarity-Rare " onclick="selectItem(10)">
-                
-                <img src="https://api.dicebear.com"><br><b>Magma</b>
-            </div>
-            <div class="fruit-card rarity-Common " onclick="selectItem(11)">
-                
-                <img src="https://api.dicebear.com"><br><b>Spring</b>
-            </div>
-            <div class="fruit-card rarity-Legendary " onclick="selectItem(12)">
-                
-                <img src="https://api.dicebear.com"><br><b>Spider</b>
-            </div>
-            <div class="fruit-card rarity-Amber fav" onclick="selectItem(13)">
+            <div class="fruit-card rarity-Amber fav" onclick="selectItem(4)">
                 
                 <img src="https://api.dicebear.com"><br><b>Dark Blade</b>
             </div></div>
@@ -421,7 +399,40 @@ document.getElementById('cooldown-timer').style.display = 'none';
         msg.style.color = "#ff4757"; 
     }
 }
- 
+ const availableTitles = [
+    { name: "Recrue", class: "title-newbie", requirement: () => true },
+    { name: "Expert", class: "title-expert", requirement: () => playerLvl >= 10 },
+    { name: "King of Kitsune", class: "title-kitsune-king", requirement: () => hasKitsuneTitle },
+    { name: "Maître des Épées", class: "title-expert", requirement: () => inventory.some(f => f.name === "Dark Blade") }
+];
+
+function openTitleMenu() {
+    const list = document.getElementById('title-list');
+    list.innerHTML = "";
+    
+    availableTitles.forEach(t => {
+        if (t.requirement()) {
+            const btn = document.createElement('button');
+            btn.className = `player-title ${t.class}`;
+            btn.style.cssText = "padding: 10px; cursor: pointer; text-align: center; background: #222; border: 1px solid #444; margin-bottom: 5px;";
+            btn.innerText = t.name;
+            btn.onclick = () => {
+                applyTitle(t.name, t.class);
+                document.getElementById('title-menu').style.display = 'none';
+            };
+            list.appendChild(btn);
+        }
+    });
+    document.getElementById('title-menu').style.display = 'block';
+}
+
+function applyTitle(name, className) {
+    const display = document.getElementById('display-title');
+    display.innerText = name;
+    display.className = `player-title ${className}`;
+    save(); // Sauvegarde le choix
+}
+
  
 // AJOUTE AUSSI CETTE FONCTION POUR QUE LE CLIC SUR LES FRUITS FONCTIONNE
 function removePTradeItem(i) {
