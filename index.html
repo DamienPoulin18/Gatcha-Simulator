@@ -62,17 +62,15 @@
     </div>
     <button onclick="document.getElementById('games-panel').style.left = '-300px'" style="width: 100%; padding: 12px; background: #333; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold;">RETOUR</button>
 </div>
-
-<div id="dash-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 4px solid #00fbff; z-index: 3000; border-radius: 10px; overflow: hidden; box-shadow: 0 0 50px #0066ff;">
-    <!-- Affichage de la progression fidèle à ton code -->
-    <div style="position: absolute; top: 10px; width: 100%; text-align: center; color: #00fbff; font-weight: bold; font-size: 20px; text-shadow: 2px 2px #000; z-index: 10;">
-        PROGRESSION: <span id="pct">0</span>%
+<div id="dash-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; border: 4px solid #0088ff; z-index: 5000; border-radius: 10px; overflow: hidden; box-shadow: 0 0 60px rgba(0, 136, 255, 0.4);">
+    <div style="position: absolute; top: 20px; width: 100%; text-align: center; color: #00fbff; font-size: 28px; text-shadow: 2px 2px #000; z-index: 10; font-family: 'Arial Black', sans-serif;">
+        <span id="pct">0</span>%
     </div>
-    
     <canvas id="gd" width="800" height="450"></canvas>
-    
-    <button onclick="stopGeoDash()" style="position: absolute; top: 10px; right: 10px; padding: 5px 12px; background: rgba(255,0,0,0.6); color: white; border: 1px solid #fff; border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>
+    <button onclick="stopGeoDash()" style="position: absolute; top: 15px; right: 15px; padding: 10px 15px; background: rgba(255,0,0,0.6); color: white; border: 2px solid #fff; border-radius: 5px; cursor: pointer; font-weight: bold; z-index: 20;">QUITTER</button>
 </div>
+
+
 
 
 
@@ -687,23 +685,20 @@ let gameRunning = false;
 let animationID;
 
 function startGeoDash() {
-    document.getElementById('dash-modal').style.display = 'block';
-    gameRunning = true;
-    
+    const modal = document.getElementById('dash-modal');
     const canvas = document.getElementById('gd');
     const ctx = canvas.getContext('2d');
+    const pctEl = document.getElementById('pct');
     
-    // --- TES RÉGLAGES MIS À JOUR ---
-    const SPEED = 2.8; const GRAVITY = 0.28; const JUMP = -7.5;       
-    const PAD_FORCE = -14.5; const TILE = 50; const GROUND_Y = 350;
+    modal.style.display = 'block';
+    gameRunning = true;
 
-    const MAP_DATA = "00000000000000000000" + "000020000002000000200000" + 
-                     "001110002200011100022000" + "000422200001111000042220" + 
-                     "001111110000220000422200" + "110011001100110011001100" + 
-                     "000422200011110004222000" + "000111000222000422200011" + 
-                     "111111111111111111111111";
+    // --- CONFIGURATION ---
+    const SPEED = 2.8; const GRAVITY = 0.24; const JUMP = -7.5; const TILE = 50;
+    const GROUND_Y = 350; const CEILING_Y = 50; const PAD_POWER = 10.5;
+    const MAP_DATA = ("00000000000000000000000200000200000200000011100022000111002200092220000111100009222000000070000000000000000333333333444000330033344400033333333444003333330003334440000000000080000000000000000922200001111000092221110011001100110011000009222000092220000922200000000000000000000").split('');
 
-    let player = { x: 150, y: 300, size: 40, dy: 0, angle: 0, onGround: false };
+    let player = { x: 160, y: 310, w: 40, h: 40, dy: 0, angle: 0, onGround: false, gravDir: 1, trail: [] };
     let scrollX = 0; let isInput = false;
 
     // --- CONTRÔLES ---
@@ -713,111 +708,102 @@ function startGeoDash() {
     canvas.onmouseup = () => isInput = false;
 
     function reset() {
-        // Gain basé sur la progression avant le crash
-        let currentPct = parseInt(document.getElementById('pct').innerText);
+        let currentPct = parseInt(pctEl.innerText);
         if(currentPct > 0) {
-            let gain = currentPct * 500; // 500 Beli par % de progression
-            money += gain;
-            if(typeof addXP === 'function') addXP(currentPct);
+            money += currentPct * 750;
+            if(typeof addXP === 'function') addXP(currentPct * 5);
             updateUI();
         }
-        scrollX = 0; player.y = 300; player.dy = 0; player.angle = 0;
+        scrollX = 0; player.y = 310; player.dy = 0; player.angle = 0; player.gravDir = 1; player.trail = [];
     }
 
     function loop() {
         if(!gameRunning) return;
 
         // 1. UPDATE
-        player.dy += GRAVITY; player.y += player.dy;
+        player.dy += GRAVITY * player.gravDir;
+        player.y += player.dy;
         player.onGround = false;
+        player.trail.push({ x: player.x, y: player.y, angle: player.angle });
+        if (player.trail.length > 12) player.trail.shift();
 
-        if (player.y + player.size > GROUND_Y) {
-            player.y = GROUND_Y - player.size; player.dy = 0; player.onGround = true;
-        }
+        if (player.y + player.h > GROUND_Y) { player.y = GROUND_Y - player.h; player.dy = 0; player.onGround = (player.gravDir === 1); }
+        if (player.y < CEILING_Y) { player.y = CEILING_Y; player.dy = 0; player.onGround = (player.gravDir === -1); }
 
         let gridX = Math.floor((scrollX + player.x + 20) / TILE);
         let type = MAP_DATA[gridX];
+        let margin = 12; let pHitY = player.y + margin; let pHitSize = player.w - (margin * 2);
 
+        // COLLISIONS (Logique fidèle à ton code)
         if (type === '1') {
-            let blockTop = GROUND_Y - TILE;
-            if (player.dy >= 0 && (player.y + player.size) >= blockTop && (player.y + player.size) <= blockTop + 20) {
-                player.y = blockTop - player.size; player.dy = 0; player.onGround = true;
-            } else if (player.y + player.size > blockTop + 10) reset();
-        } else if (type === '2') {
-            if (player.y + player.size > GROUND_Y - 25) reset();
-        } else if (type === '4') {
-            if (player.y + player.size > GROUND_Y - 15) { player.dy = PAD_FORCE; player.onGround = false; }
-        }
+            let bTop = GROUND_Y - TILE;
+            if (player.dy >= 0 && (player.y + player.h) >= bTop && (player.y + player.h) <= bTop + 15) { player.y = bTop - player.h; player.dy = 0; player.onGround = true; } 
+            else if (pHitY + pHitSize > bTop + 5) reset();
+        } else if (type === '3') {
+            let bBot = CEILING_Y + TILE;
+            if (player.dy <= 0 && player.y <= bBot && player.y >= bBot - 15) { player.y = bBot; player.dy = 0; player.onGround = true; } 
+            else if (pHitY < bBot - 5) reset();
+        } else if (type === '2' && pHitY + pHitSize > GROUND_Y - 25) reset();
+        else if (type === '4' && pHitY < CEILING_Y + 25) reset();
+        else if (type === '7' && player.gravDir === 1) { player.gravDir = -1; player.dy = 0; }
+        else if (type === '8' && player.gravDir === -1) { player.gravDir = 1; player.dy = 0; }
+        else if (type === '9' && player.onGround && player.gravDir === 1) { player.dy = -PAD_POWER; player.onGround = false; }
+        else if (type === '10' && player.onGround && player.gravDir === -1) { player.dy = PAD_POWER; player.onGround = false; }
 
-        if (isInput && player.onGround) { player.dy = JUMP; player.onGround = false; }
-
-        if (!player.onGround) player.angle += 0.1;
-        else {
-            let target = Math.round(player.angle / (Math.PI/2)) * (Math.PI/2);
-            player.angle += (target - player.angle) * 0.2;
-        }
+        if (isInput && player.onGround) { player.dy = -7.5 * player.gravDir; player.onGround = false; }
+        if (!player.onGround) player.angle += 0.1 * player.gravDir;
+        else player.angle = Math.round(player.angle / (Math.PI/2)) * (Math.PI/2);
 
         scrollX += SPEED;
-        // Mise à jour de la progression %
-        let progress = Math.min(100, Math.floor((scrollX / (MAP_DATA.length * TILE)) * 100));
-        document.getElementById('pct').innerText = progress;
+        pctEl.innerText = Math.min(100, Math.floor((scrollX / (MAP_DATA.length * TILE)) * 100));
 
-        if (scrollX > MAP_DATA.length * TILE) {
-            alert("🏆 NIVEAU COMPLÉTÉ !");
-            reset();
-        }
-
-        // 2. DRAW
+        // 2. DESSIN (Ce qui évite l'écran noir)
         let grd = ctx.createLinearGradient(0, 0, 0, 450);
         grd.addColorStop(0, "#0066ff"); grd.addColorStop(1, "#001133");
         ctx.fillStyle = grd; ctx.fillRect(0, 0, 800, 450);
 
-        for(let i=0; i < MAP_DATA.length; i++) {
+        // Map
+        MAP_DATA.forEach((t, i) => {
             let x = i * TILE - scrollX;
-            if (x < -TILE || x > 800) continue;
-            let t = MAP_DATA[i];
-            if (t === '1') {
-                ctx.fillStyle = "#000"; ctx.fillRect(x, GROUND_Y-TILE, TILE, TILE);
-                ctx.strokeStyle = "#44aaff"; ctx.lineWidth = 2; ctx.strokeRect(x, GROUND_Y-TILE, TILE, TILE);
-            } else if (t === '2') {
-                ctx.fillStyle = "#000"; ctx.beginPath();
-                ctx.moveTo(x, GROUND_Y); ctx.lineTo(x + TILE, GROUND_Y); ctx.lineTo(x + TILE/2, GROUND_Y - 45);
-                ctx.fill(); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-            } else if (t === '4') {
-                ctx.fillStyle = "#ffff00"; ctx.beginPath();
-                ctx.ellipse(x + 25, GROUND_Y - 5, 20, 5, 0, 0, Math.PI * 2); ctx.fill();
-            }
-        }
+            if (x < -TILE || x > 800) return;
+            if (t === '1') { ctx.fillStyle = "#000"; ctx.fillRect(x, GROUND_Y-TILE, TILE, TILE); ctx.strokeStyle = "#fff"; ctx.strokeRect(x, GROUND_Y-TILE, TILE, TILE); }
+            if (t === '3') { ctx.fillStyle = "#000"; ctx.fillRect(x, CEILING_Y, TILE, TILE); ctx.strokeStyle = "#fff"; ctx.strokeRect(x, CEILING_Y, TILE, TILE); }
+            if (t === '2') { ctx.fillStyle = "#000"; ctx.beginPath(); ctx.moveTo(x, GROUND_Y); ctx.lineTo(x+TILE, GROUND_Y); ctx.lineTo(x+TILE/2, GROUND_Y-45); ctx.fill(); ctx.stroke(); }
+            if (t === '4') { ctx.fillStyle = "#000"; ctx.beginPath(); ctx.moveTo(x, CEILING_Y); ctx.lineTo(x+TILE, CEILING_Y); ctx.lineTo(x+TILE/2, CEILING_Y+45); ctx.fill(); ctx.stroke(); }
+            if (t === '7') { ctx.fillStyle = "rgba(255, 255, 0, 0.3)"; ctx.fillRect(x+20, 50, 10, 300); }
+            if (t === '8') { ctx.fillStyle = "rgba(0, 136, 255, 0.3)"; ctx.fillRect(x+20, 50, 10, 300); }
+            if (t === '9' || t === '10') { ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.ellipse(x+25, (t==='9'?345:55), 20, 5, 0, 0, 7); ctx.fill(); }
+        });
 
-        ctx.fillStyle = "#000822"; ctx.fillRect(0, GROUND_Y, 800, 100);
+        // Sols et Joueur
+        ctx.fillStyle = "#000822"; ctx.fillRect(0, GROUND_Y, 800, 100); ctx.fillRect(0, 0, 800, CEILING_Y);
         ctx.save(); ctx.translate(player.x + 20, player.y + 20); ctx.rotate(player.angle);
         ctx.fillStyle = "#00fbff"; ctx.fillRect(-20, -20, 40, 40);
-        ctx.strokeStyle = "#fff"; ctx.strokeRect(-14, -14, 28, 28); ctx.restore();
+        ctx.strokeStyle = "#fff"; ctx.strokeRect(-15, -15, 30, 30); ctx.restore();
 
         animationID = requestAnimationFrame(loop);
     }
     loop();
 }
+
 function stopGeoDash() {
-    gameRunning = false; // Bloque la boucle loop()
-    cancelAnimationFrame(animationID); // Tue l'ID de l'animation en cours
-    
-    // On nettoie les écouteurs de touches pour éviter les sauts fantômes
-    window.onkeydown = null;
-    window.onkeyup = null;
-    
-    // On cache la fenêtre
+    gameRunning = false;
+    cancelAnimationFrame(animationID);
     document.getElementById('dash-modal').style.display = 'none';
-    
-    // On rafraîchit l'argent gagné sur l'interface principale
     updateUI();
 }
+
+
 function loop() {
     if (!gameRunning) return; // SI gameRunning est faux, on arrête TOUT ici.
     
     // ... reste de ton code (update, draw, etc.)
     
     animationID = requestAnimationFrame(loop);
+    // À mettre juste après scrollX += SPEED;
+let progress = Math.min(100, Math.floor((scrollX / (MAP_DATA.length * TILE)) * 100));
+document.getElementById('pct').innerText = progress;
+
 }
 
 
