@@ -797,7 +797,9 @@ function startGeoDash() {
         if (scrollX > MAP_DATA[0].length * TILE) reset();
 
         // 3. RENDU (Le dessin qui répare les blocs invisibles)
-        ctx.fillStyle = "#0066ff"; ctx.fillRect(0, 0, 800, 450); // Fond bleu
+        let grd = ctx.createLinearGradient(0, 0, 0, 450);
+        grd.addColorStop(0, "#0066ff"); grd.addColorStop(1, "#001133");
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, 800, 450);
 
         MAP_DATA.forEach((row, y) => {
             if (!row) return;
